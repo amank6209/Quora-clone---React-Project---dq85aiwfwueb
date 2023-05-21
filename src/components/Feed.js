@@ -23,7 +23,7 @@ function Feed() {
   return (
     <div className="feed">
       <QuorBox />
-      {posts.map(({ id, questions }) => (
+      {(({ id, questions }) => (
         <Post
           key={id}
           Id={id}
