@@ -1,111 +1,139 @@
-import { Avatar } from "@material-ui/core";
-import React, { useEffect, useState } from "react";
-import "./Post.css";
-import ArrowUpwardOutlinedIcon from "@material-ui/icons/ArrowUpwardOutlined";
-import ArrowDownwardOutlinedIcon from "@material-ui/icons/ArrowDownwardOutlined";
-import RepeatOutlinedIcon from "@material-ui/icons/RepeatOutlined";
-import ChatBubbleOutlineOutlinedIcon from "@material-ui/icons/ChatBubbleOutlineOutlined";
-import { MoreHorizOutlined, ShareOutlined } from "@material-ui/icons";
-import { useDispatch, useSelector } from "react-redux";
-import { selectUser } from "../features/userSlice";
+import React, { useState, useEffect } from "react";
+import { Avatar } from "@mui/material";
+import "./post.scss";
+import "./modal.css";
+import { Button, Input } from "@mui/material";
+import ThumbUpOutlinedIcon from "@mui/icons-material/ThumbUpOutlined";
+import ThumbDownOutlinedIcon from "@mui/icons-material/ThumbDownOutlined";
+import ChatBubbleOutlineOutlinedIcon from "@mui/icons-material/ChatBubbleOutlineOutlined";
+import LoopOutlinedIcon from "@mui/icons-material/LoopOutlined";
+import MoreHorizOutlinedIcon from "@mui/icons-material/MoreHorizOutlined";
 import Modal from "react-modal";
-import db from "../firebase";
-import { selectQuestionId, setQuestionInfo } from "../features/questionSlice";
-import firebase from "firebase";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  selectQuestionId,
+  selectQuestionName,
+  setQuestionInfo,
+} from "../../features/questionSlice";
+import {
+  collection,
+  doc,
+  setDoc,
+  getDoc,
+  query,
+  orderBy,
+  onSnapshot,
+  serverTimestamp,
+} from "firebase/firestore";
+import { db } from "../auth/firebase";
+import { selectUser } from "../../features/userSlice";
+import {
+  FacebookShareButton,
+  EmailShareButton,
+  WhatsappShareButton,
+  TelegramShareButton,
+  WorkplaceShareButton,
+} from "react-share";
+import {
+  FacebookIcon,
+  WhatsappIcon,
+  TelegramIcon,
+  EmailIcon,
+  WorkplaceIcon,
+} from "react-share";
+import CloseIcon from "@mui/icons-material/Close";
+import Popup from "reactjs-popup";
 
-function Post({ Id, question, imageUrl, timestamp, users }) {
-  const user = useSelector(selectUser);
+const Post = ({ Id, image, question, timestamp, quoraUser }) => {
   const dispatch = useDispatch();
-
-  const [IsmodalOpen, setIsModalOpen] = useState(false);
-  const questionId = useSelector(selectQuestionId);
+  const [openModal, setOpenModal] = useState(false);
   const [answer, setAnswer] = useState("");
-  const [getAnswers, setGetAnswers] = useState([]);
+  const [answerList, setAnswerList] = useState([]);
+  const questionId = useSelector(selectQuestionId);
+  const user = useSelector(selectUser);
+  const [showAnswer, setShowAnswer] = useState(false);
 
-  useEffect(() => {
-    if (questionId) {
-      db.collection("questions")
-        .doc(questionId)
-        .collection("answer")
-        .orderBy("timestamp", "desc")
-        .onSnapshot((snapshot) =>
-          setGetAnswers(
-            snapshot.docs.map((doc) => ({ id: doc.id, answers: doc.data() }))
-          )
-        );
-    }
-  }, [questionId]);
+  const questionName = useSelector(selectQuestionName);
 
-  const handleAnswer = (e) => {
+  const handleAddAnswer = async (e) => {
     e.preventDefault();
 
-    if (questionId) {
-      db.collection("questions").doc(questionId).collection("answer").add({
-        user: user,
-        answer: answer,
+    if (questionId && answer) {
+      const data = {
         questionId: questionId,
-        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-      });
+        timestamp: serverTimestamp(),
+        answer: answer,
+        user: user,
+      };
+      await setDoc(doc(db, "answer", questionId), data);
+
+      setAnswer("");
+      setOpenModal(false);
     }
-    console.log(questionId);
-    setAnswer("");
-    setIsModalOpen(false);
   };
+
+  const fetchAnswers = async () => {
+    try {
+      const q = await query(
+        collection(db, "answer"),
+        orderBy("timestamp", "asc")
+      );
+
+      await onSnapshot(q, (querySnapshot) => {
+        setAnswerList(
+          querySnapshot.docs.map((doc) => ({
+            id: doc.id,
+            answers: doc.data(),
+          }))
+        );
+      });
+      console.log(answerList);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const handleShowAnswers = (e) => {
+    fetchAnswers();
+    setShowAnswer(!showAnswer);
+  };
+
+  useEffect(() => {}, [questionId]);
+
   return (
     <div
       className="post"
       onClick={() =>
-        dispatch(
-          setQuestionInfo({
-            questionId: Id,
-            questionName: question,
-          })
-        )
+        dispatch(setQuestionInfo({ questionId: Id, questionName: question }))
       }
     >
-      <div className="post__info">
-        <Avatar
-          src={
-            users.photo
-              ? users.photo
-              : "https://images-platform.99static.com//_QXV_u2KU7-ihGjWZVHQb5d-yVM=/238x1326:821x1909/fit-in/500x500/99designs-contests-attachments/119/119362/attachment_119362573"
-          }
-        />
-        <h4>{users.displayName ? users.displayName : users.email}</h4>
+      <div className="post_info">
+        <Avatar src={quoraUser.photo} />
+        <h4>
+          {quoraUser.displayName ? quoraUser.displayName : quoraUser.email}
+        </h4>
         <small>{new Date(timestamp?.toDate()).toLocaleString()}</small>
       </div>
-      <div className="post__body">
-        <div className="post__question">
-          <p>{question}</p>
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="post__btnAnswer"
-          >
+      <div className="post_body">
+        <div className="post_question">
+          <p onClick={handleShowAnswers}>{question}</p>
+          <Button className="post_btnAnswer" onClick={() => setOpenModal(true)}>
             Answer
-          </button>
+          </Button>
           <Modal
-            isOpen={IsmodalOpen}
-            onRequestClose={() => setIsModalOpen(false)}
+            isOpen={openModal}
+            ariaHideApp={false}
+            onRequestClose={() => setOpenModal(false)}
             shouldCloseOnOverlayClick={false}
-            style={{
-              overlay: {
-                width: 680,
-                height: 550,
-                backgroundColor: "rgba(0,0,0,0.8)",
-                zIndex: "1000",
-                top: "50%",
-                left: "50%",
-                marginTop: "-250px",
-                marginLeft: "-350px",
-              },
-            }}
           >
             <div className="modal__question">
               <h1>{question}</h1>
               <p>
                 asked by{" "}
                 <span className="name">
-                  {users.displayName ? users.displayName : users.email}
+                  {quoraUser.displayName
+                    ? quoraUser.displayName
+                    : quoraUser.email}
                 </span>{" "}
                 {""}
                 on{" "}
@@ -117,69 +145,166 @@ function Post({ Id, question, imageUrl, timestamp, users }) {
             <div className="modal__answer">
               <textarea
                 value={answer}
+                required
                 onChange={(e) => setAnswer(e.target.value)}
-                placeholder="Enter Your Answer"
+                placeholder="Enter Your Answer Here"
                 type="text"
               />
             </div>
             <div className="modal__button">
-              <button className="cancle" onClick={() => setIsModalOpen(false)}>
+              <button className="cancle" onClick={() => setOpenModal(false)}>
                 Cancel
               </button>
-              <button type="sumbit" onClick={handleAnswer} className="add">
+              <button type="sumbit" onClick={handleAddAnswer} className="add">
                 Add Answer
               </button>
             </div>
           </Modal>
         </div>
-        <div className="post__answer">
-          {getAnswers.map(({ id, answers }) => (
-            <p key={id} style={{ position: "relative", paddingBottom: "5px" }}>
-              {Id === answers.questionId ? (
-                <span>
-                  {answers.answer}
-                  <br />
+        {showAnswer && (
+          <div className="post__answer">
+            {answerList.map(({ id, answers }) => (
+              <p
+                key={id}
+                style={{ position: "relative", paddingBottom: "5px" }}
+              >
+                {Id === answers.questionId ? (
                   <span
                     style={{
-                      position: "absolute",
-                      color: "gray",
-                      fontSize: "small",
                       display: "flex",
-                      right: "0px",
+                      flexDirection: "column",
                     }}
                   >
-                    <span style={{ color: "#b92b27" }}>
-                      {answers.user.displayName
-                        ? answers.user.displayName
-                        : answers.user.email}{" "}
-                      on{" "}
-                      {new Date(answers.timestamp?.toDate()).toLocaleString()}
-                    </span>
+                    <p style={{ padding: "0 0 10px 0" }}>{answers.answer}</p>
+                    <p
+                      style={{
+                        position: "absolute",
+                        color: "gray",
+                        fontSize: "small",
+                        display: "flex",
+                        right: "10px",
+                        bottom: "0",
+                      }}
+                    >
+                      <span style={{ color: "#b92b27" }}>
+                        {answers.user.displayName
+                          ? answers.user.displayName
+                          : answers.user.email}{" "}
+                        on{" "}
+                        {new Date(answers.timestamp?.toDate()).toLocaleString()}
+                      </span>
+                    </p>
                   </span>
-                </span>
-              ) : (
-                ""
-              )}
-            </p>
-          ))}
-        </div>
-        <img src={imageUrl} alt="" />
+                ) : (
+                  ""
+                )}
+              </p>
+            ))}
+          </div>
+        )}
+        {image && <img src={image} alt="post" />}
       </div>
-      <div className="post__footer">
-        <div className="post__footerAction">
-          <ArrowUpwardOutlinedIcon />
-          <ArrowDownwardOutlinedIcon />
+      <div className="post_footer">
+        <div className="post_footerActions">
+          <div className="post_footerAction">
+            <div className="upvote">
+              <ThumbUpOutlinedIcon />
+              <small>Upvote. {123}</small>
+            </div>
+            <div className="downvote">
+              <ThumbDownOutlinedIcon />
+            </div>
+          </div>
+          <div className="comment">
+            <ChatBubbleOutlineOutlinedIcon />
+            <small>145</small>
+          </div>
+          <div className="share">
+            <LoopOutlinedIcon />
+            {/* <small>69</small> */}
+            <span className="footerText">
+              <Popup
+                trigger={<button className="sharePopup"> Share </button>}
+                modal
+                nested
+              >
+                {(close) => (
+                  <div className="modal">
+                    <div className="closeBtn">
+                      <button className="clsBtn" onClick={() => close()}>
+                        <CloseIcon />
+                      </button>
+                    </div>
+                    <div className="content">Share ChitChat with friends</div>
+                    <div className="options">
+                      <FacebookShareButton
+                        url={
+                          "https://quora-clone-sanju-manna-2201.netlify.app/"
+                        }
+                      >
+                        <FacebookIcon
+                          logoFillColor="white"
+                          round={true}
+                          size={50}
+                        ></FacebookIcon>
+                      </FacebookShareButton>
+                      <WhatsappShareButton
+                        url={
+                          "https://quora-clone-sanju-manna-2201.netlify.app/"
+                        }
+                      >
+                        <WhatsappIcon
+                          logoFillColor="white"
+                          round={true}
+                          size={50}
+                        ></WhatsappIcon>
+                      </WhatsappShareButton>
+                      <TelegramShareButton
+                        url={
+                          "https://quora-clone-sanju-manna-2201.netlify.app/"
+                        }
+                      >
+                        <TelegramIcon
+                          logoFillColor="white"
+                          round={true}
+                          size={50}
+                        ></TelegramIcon>
+                      </TelegramShareButton>
+                      <WorkplaceShareButton
+                        url={
+                          "https://quora-clone-sanju-manna-2201.netlify.app/"
+                        }
+                      >
+                        <WorkplaceIcon
+                          logoFillColor="white"
+                          round={true}
+                          size={50}
+                        ></WorkplaceIcon>
+                      </WorkplaceShareButton>
+                      <EmailShareButton
+                        url={
+                          "https://quora-clone-sanju-manna-2201.netlify.app/"
+                        }
+                      >
+                        <EmailIcon
+                          logoFillColor="white"
+                          round={true}
+                          size={50}
+                        ></EmailIcon>
+                      </EmailShareButton>
+                    </div>
+                  </div>
+                )}
+              </Popup>
+            </span>
+          </div>
         </div>
-
-        <RepeatOutlinedIcon />
-        <ChatBubbleOutlineOutlinedIcon />
-        <div className="post__footerLeft">
-          <ShareOutlined />
-          <MoreHorizOutlined />
+        <div className="post_more">
+          <MoreHorizOutlinedIcon />
         </div>
       </div>
     </div>
   );
-}
+};
 
 export default Post;
