@@ -3,7 +3,7 @@ import SearchIcon from "@material-ui/icons/Search";
 
 import { Avatar, Input } from "@material-ui/core";
 import "./css/QuoraHeader.css";
-import {Modal} from "react-responsive-modal";
+//import {Modal} from "react-responsive-modal";
 import { Close,PeopleAltOutlined } from "@material-ui/icons";
 
 import "react-responsive-modal/styles.css";
