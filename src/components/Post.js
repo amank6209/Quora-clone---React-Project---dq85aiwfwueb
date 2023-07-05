@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useState } from "react";
 import { Avatar } from '@material-ui/core';
 import "./css/QuoraHeader.css";
-import Modal from "react-responsive-modal";
+//import Modal from "react-responsive-modal";
 import { Close } from "@material-ui/icons";
 // import ReactQuill from 'react-quill';
 
