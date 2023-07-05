@@ -1,0 +1,164 @@
+.post {
+  display: flex;
+  flex-direction: column;
+  width: 600px;
+  padding: 10px;
+  background-color: white;
+  margin-top: 15px;
+  border-left: 1px solid lightgray;
+  border-radius: 25px;
+  box-shadow: 8px 8px 8px 3px rgba(25, 25, 26, 0.5);
+}
+
+.post-info {
+  display: flex;
+  align-items: center;
+}
+
+.post-info>h4 {
+  margin-left: 10px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.post-info>h4:hover {
+  text-decoration: underline;
+}
+
+.post-info>small {
+  margin-left: 10px;
+}
+
+.post-contain {
+  display: flex;
+  flex-direction: column;
+}
+
+.post-contain>.post-question {
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.post-question>.post-ans-btn {
+  margin-left: auto;
+  cursor: pointer;
+  padding: 15px;
+  background-color: rgb(92, 34, 167);
+  border: none;
+  width: 100px;
+  color: #fff;
+  font-weight: bold;
+  font-size: 17px;
+  border-radius: 25px;
+}
+
+.post-ans-btn:hover {
+  color: rgb(92, 34, 167);
+  background: rgb(218, 206, 233);
+}
+
+.post-question>p:hover {
+  text-decoration: underline;
+}
+
+.post-contain>.post-ans>p {
+  margin-bottom: 10px;
+}
+
+.modal-qustion {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+
+.modal-qustion>h1 {
+  margin-top: 5px;
+  color: #8f1f1b;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.modal-qustion>p {
+  color: gray;
+  font-size: small;
+}
+
+.modal-qustion>p>.name {
+  color: black;
+  font-weight: bold;
+}
+
+.modal-answer {
+  padding-top: 20px;
+  flex: 1;
+}
+
+.modal-answer>textarea {
+  width: 100%;
+  height: 200px;
+  padding: 5px;
+  font-size: 15px;
+  color: blue;
+}
+
+.modal-buttons {
+  display: flex;
+  align-items: center;
+  margin-right: -20px;
+}
+
+.modal-buttons>.cancle {
+  margin-left: auto;
+  border: none;
+  margin-top: 5px;
+  outline: none;
+  color: gray;
+  font-weight: 500;
+  padding: 10px;
+  margin-right: 10px;
+  border-radius: 33px;
+  cursor: pointer;
+}
+
+.modal-buttons>.add {
+  border: none;
+  outline: none;
+  margin-top: 5px;
+  background-color: rgb(119, 65, 189);
+  color: white;
+  font-size: 20px;
+  font-weight: 500;
+  padding: 12px;
+  margin-right: 10px;
+  margin-top: 20px;
+  border-radius: 50px;
+  cursor: pointer;
+}
+
+.modal-buttons>.add:hover {
+  color: rgb(92, 34, 167);
+  background: rgb(218, 206, 233);
+}
+
+
+.react-responsive-modal-modal {
+  width: 90vw;
+  height: 85vh;
+}
+
+.quill {
+  width: 100%;
+  height: 380px;
+}
+
+.post>.img>img {
+  width: 100%;
+  object-fit: contain;
+  background-color: rgb(238, 238, 238);
+  border-radius: 40px;
+  cursor: pointer;
+  margin-top: 10px;
+}

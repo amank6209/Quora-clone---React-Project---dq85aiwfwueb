@@ -1,0 +1,23 @@
+.quora {
+  width: 100%;
+  min-width: fit-content;
+}
+
+.main-content {
+  display: flex;
+  justify-content: center;
+  grid-template-columns: repeat(2, 1fr);
+  background-color: rgb(240, 242, 243);
+  min-width: fit-content;
+  width: 100vw;
+}
+
+.first-content {
+  display: flex;
+  justify-items: left;
+  padding: 20px 0;
+  grid-template-areas: 20% 60% 20%;
+  margin-left: 20px;
+  margin-top: 40px;
+}
+

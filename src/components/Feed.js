@@ -1,40 +1,32 @@
-import React, { useEffect, useState } from "react";
-import QuorBox from "./QuorBox";
-import "./Feed.css";
+import "./css/Feed.css";
+import Box from "./Box";
 import Post from "./Post";
-import db from "../firebase";
 
-function Feed() {
-  const [posts, setPosts] = useState([]);
+function Feed(props) {
 
-  useEffect(() => {
-    db.collection("questions")
-      .orderBy("timestamp", "desc")
-      .onSnapshot((snapshot) =>
-        setPosts(
-          snapshot.docs.map((doc) => ({
-            id: doc.id,
-            questions: doc.data(),
-          }))
-        )
-      );
-  }, []);
+    const { posts } = props
 
-  return (
-    <div className="feed">
-      <QuorBox />
-      {(({ id, questions }) => (
-        <Post
-          key={id}
-          Id={id}
-          question={questions.question}
-          imageUrl={questions.imageUrl}
-          timestamp={questions.timestamp}
-          users={questions.user}
-        />
-      ))}
-    </div>
-  );
+    console.log(posts);
+
+    return (
+        <div className='feed'>
+            <Box />
+            {
+                posts.map(({ id, question }) => (
+                    <Post
+                        key={id}
+                        id={id}
+                        image={question.imageUrl}
+                        question={question.question}
+                        timestamp={question.timestamp}
+                        quoraUser={question.user}
+                    />
+                ))
+            }
+
+        </div>
+
+    )
 }
 
 export default Feed;

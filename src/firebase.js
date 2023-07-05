@@ -1,21 +1,21 @@
-import firebase from "firebase";
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
+import firebase from "firebase"
 
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBA3ulpfggax6kp2uiHLHBR6Rl-tb8SX0k",
-  authDomain: "quora-clone-5aaf8.firebaseapp.com",
-  projectId: "quora-clone-5aaf8",
-  storageBucket: "quora-clone-5aaf8.appspot.com",
-  messagingSenderId: "600441480694",
-  appId: "1:600441480694:web:c102303377fb7439ca13d7",
-  measurementId: "G-DLKCTP2FLD"
+  apiKey: "AIzaSyDG2mnrOkS0tafAjU1SqzXfaJS7AMKMSMg",
+  authDomain: "quora-clone-akky.firebaseapp.com",
+  projectId: "quora-clone-akky",
+  storageBucket: "quora-clone-akky.appspot.com",
+  messagingSenderId: "902318949999",
+  appId: "1:902318949999:web:8df2b97a20eece0209ef9a",
+  measurementId: "G-LJBYVXT22Z",
 };
 
 const firebaseApp = firebase.initializeApp(firebaseConfig);
+
 const auth = firebase.auth();
 const provider = new firebase.auth.GoogleAuthProvider();
+
 const db = firebaseApp.firestore();
 
 export { auth, provider };
